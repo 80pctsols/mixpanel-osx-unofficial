@@ -291,8 +291,6 @@ static Mixpanel *sharedInstance = nil;
     [properties setValue:[self IFA] forKey:@"$ios_ifa"];
     [properties setValue:carrier.carrierName forKey:@"$carrier"];
 #else
-    NSProcessInfo *processInfo = [NSProcessInfo processInfo];
-    
     [properties setValue:@"mac" forKey:@"mp_lib"];
     [properties setValue:VERSION forKey:@"$lib_version"];
     
@@ -301,7 +299,12 @@ static Mixpanel *sharedInstance = nil;
     
     [properties setValue:@"Apple" forKey:@"$manufacturer"];
     [properties setValue:@"Mac OS X" forKey:@"$os"];
-    [properties setValue:[processInfo operatingSystemVersionString] forKey:@"$os_version"];
+    // The original two lines below outputs something like: "Version 10.10.2 (Build 14C109)"
+    //NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+    //[properties setValue:[processInfo operatingSystemVersionString] forKey:@"$os_version"];
+    // Read the OS version number without all the extra cruft
+    NSDictionary *version = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
+    properties[@"$os_version"] = [version objectForKey:@"ProductVersion"];
     
     [properties setValue:[self deviceModel] forKey:@"$model"];
     [properties setValue:[self deviceModel] forKey:@"mp_device_model"]; // legacy
